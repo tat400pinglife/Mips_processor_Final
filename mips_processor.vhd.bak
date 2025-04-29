@@ -1,0 +1,249 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+-- Top level entity for the MIPS processor
+entity mips_processor is
+    Port ( 
+        clk : in STD_LOGIC;
+        reset : in STD_LOGIC;
+        -- Optional debugging outputs
+        debug_pc : out STD_LOGIC_VECTOR(31 downto 0);
+        debug_instruction : out STD_LOGIC_VECTOR(31 downto 0)
+    );
+end mips_processor;
+
+architecture Behavioral of mips_processor is
+    -- Component declarations
+    component program_counter is
+        Port ( 
+            clk : in STD_LOGIC;
+            reset : in STD_LOGIC;
+            pc_in : in STD_LOGIC_VECTOR(31 downto 0);
+            pc_out : out STD_LOGIC_VECTOR(31 downto 0)
+        );
+    end component;
+    
+    component instruction_memory is
+        Port ( 
+            address : in STD_LOGIC_VECTOR(31 downto 0);
+            instruction : out STD_LOGIC_VECTOR(31 downto 0)
+        );
+    end component;
+    
+    component control_unit is
+        Port ( 
+            opcode : in STD_LOGIC_VECTOR(5 downto 0);
+            RegDst : out STD_LOGIC;
+            Branch : out STD_LOGIC;
+            MemRead : out STD_LOGIC;
+            MemtoReg : out STD_LOGIC;
+            ALUOp : out STD_LOGIC_VECTOR(1 downto 0);
+            MemWrite : out STD_LOGIC;
+            ALUSrc : out STD_LOGIC;
+            RegWrite : out STD_LOGIC;
+            Jump : out STD_LOGIC
+        );
+    end component;
+    
+    component register_file is
+        Port ( 
+            clk : in STD_LOGIC;
+            reset : in STD_LOGIC;
+            reg_write : in STD_LOGIC;
+            read_reg1 : in STD_LOGIC_VECTOR(4 downto 0);
+            read_reg2 : in STD_LOGIC_VECTOR(4 downto 0);
+            write_reg : in STD_LOGIC_VECTOR(4 downto 0);
+            write_data : in STD_LOGIC_VECTOR(31 downto 0);
+            read_data1 : out STD_LOGIC_VECTOR(31 downto 0);
+            read_data2 : out STD_LOGIC_VECTOR(31 downto 0)
+        );
+    end component;
+    
+    component alu_control is
+        Port ( 
+            ALUOp : in STD_LOGIC_VECTOR(1 downto 0);
+            funct : in STD_LOGIC_VECTOR(5 downto 0);
+            ALUControl : out STD_LOGIC_VECTOR(3 downto 0)
+        );
+    end component;
+    
+    component alu is
+        Port ( 
+            a : in STD_LOGIC_VECTOR(31 downto 0);
+            b : in STD_LOGIC_VECTOR(31 downto 0);
+            alu_control : in STD_LOGIC_VECTOR(3 downto 0);
+            result : out STD_LOGIC_VECTOR(31 downto 0);
+            zero : out STD_LOGIC
+        );
+    end component;
+    
+    component data_memory is
+        Port ( 
+            clk : in STD_LOGIC;
+            address : in STD_LOGIC_VECTOR(31 downto 0);
+            write_data : in STD_LOGIC_VECTOR(31 downto 0);
+            mem_write : in STD_LOGIC;
+            mem_read : in STD_LOGIC;
+            read_data : out STD_LOGIC_VECTOR(31 downto 0)
+        );
+    end component;
+    
+    -- Control signals
+    signal RegDst      : STD_LOGIC;
+    signal Branch      : STD_LOGIC;
+    signal MemRead     : STD_LOGIC;
+    signal MemtoReg    : STD_LOGIC;
+    signal ALUOp       : STD_LOGIC_VECTOR(1 downto 0);
+    signal MemWrite    : STD_LOGIC;
+    signal ALUSrc      : STD_LOGIC;
+    signal RegWrite    : STD_LOGIC;
+    signal Jump        : STD_LOGIC;
+    
+    -- Program Counter signals
+    signal pc_current  : STD_LOGIC_VECTOR(31 downto 0);
+    signal pc_next     : STD_LOGIC_VECTOR(31 downto 0);
+    signal pc_plus1    : STD_LOGIC_VECTOR(31 downto 0);
+    
+    -- Instruction Memory signals
+    signal instruction : STD_LOGIC_VECTOR(31 downto 0);
+    
+    -- Register File signals
+    signal reg_write_dest : STD_LOGIC_VECTOR(4 downto 0);
+    signal reg_write_data : STD_LOGIC_VECTOR(31 downto 0);
+    signal reg_read_data1 : STD_LOGIC_VECTOR(31 downto 0);
+    signal reg_read_data2 : STD_LOGIC_VECTOR(31 downto 0);
+    
+    -- ALU signals
+    signal alu_input2     : STD_LOGIC_VECTOR(31 downto 0);
+    signal alu_control_signal : STD_LOGIC_VECTOR(3 downto 0);
+    signal alu_result     : STD_LOGIC_VECTOR(31 downto 0);
+    signal alu_zero       : STD_LOGIC;
+    
+    -- Sign Extension
+    signal sign_extended  : STD_LOGIC_VECTOR(31 downto 0);
+    
+    -- Data Memory signals
+    signal mem_read_data  : STD_LOGIC_VECTOR(31 downto 0);
+    
+    -- Jump address calculation
+    signal jump_address   : STD_LOGIC_VECTOR(31 downto 0);
+    
+    -- Branch address calculation
+    signal branch_offset  : STD_LOGIC_VECTOR(31 downto 0);
+    signal branch_address : STD_LOGIC_VECTOR(31 downto 0);
+    signal pc_src         : STD_LOGIC;
+    signal branch_or_pc1  : STD_LOGIC_VECTOR(31 downto 0);
+    
+    -- Shift left 2 (for branch offset)
+    signal shift_left2    : STD_LOGIC_VECTOR(31 downto 0);
+    
+begin
+    -- PC + 1 calculation (Per requirement, PC increases by 1)
+    pc_plus1 <= std_logic_vector(unsigned(pc_current) + 1);
+    
+    -- Program Counter
+    pc: program_counter
+    port map (
+        clk => clk,
+        reset => reset,
+        pc_in => pc_next,
+        pc_out => pc_current
+    );
+    
+    -- Instruction Memory
+    inst_mem: instruction_memory
+    port map (
+        address => pc_current,
+        instruction => instruction
+    );
+    
+    -- Control Unit
+    ctrl: control_unit
+    port map (
+        opcode => instruction(31 downto 26),
+        RegDst => RegDst,
+        Branch => Branch,
+        MemRead => MemRead,
+        MemtoReg => MemtoReg,
+        ALUOp => ALUOp,
+        MemWrite => MemWrite,
+        ALUSrc => ALUSrc,
+        RegWrite => RegWrite,
+        Jump => Jump
+    );
+    
+    -- Register File
+    reg_write_dest <= instruction(15 downto 11) when RegDst = '1' else instruction(20 downto 16);
+    
+    reg_file: register_file
+    port map (
+        clk => clk,
+        reset => reset,
+        reg_write => RegWrite,
+        read_reg1 => instruction(25 downto 21),
+        read_reg2 => instruction(20 downto 16),
+        write_reg => reg_write_dest,
+        write_data => reg_write_data,
+        read_data1 => reg_read_data1,
+        read_data2 => reg_read_data2
+    );
+    
+    -- Sign Extension
+    sign_extended <= X"0000" & instruction(15 downto 0) when instruction(15) = '0' else 
+                     X"FFFF" & instruction(15 downto 0);
+    
+    -- ALU Control
+    alu_ctrl: alu_control
+    port map (
+        ALUOp => ALUOp,
+        funct => instruction(5 downto 0),
+        ALUControl => alu_control_signal
+    );
+    
+    -- ALU
+    alu_input2 <= reg_read_data2 when ALUSrc = '0' else sign_extended;
+    
+    alu_unit: alu
+    port map (
+        a => reg_read_data1,
+        b => alu_input2,
+        alu_control => alu_control_signal,
+        result => alu_result,
+        zero => alu_zero
+    );
+    
+    -- Data Memory
+    data_mem: data_memory
+    port map (
+        clk => clk,
+        address => alu_result,
+        write_data => reg_read_data2,
+        mem_write => MemWrite,
+        mem_read => MemRead,
+        read_data => mem_read_data
+    );
+    
+    -- Write back to register file
+    reg_write_data <= mem_read_data when MemtoReg = '1' else alu_result;
+    
+    -- Branch address calculation
+    -- For branch, we need to shift left by 2 and then add to PC+1
+    shift_left2 <= sign_extended(29 downto 0) & "00";
+    branch_address <= std_logic_vector(unsigned(pc_plus1) + unsigned(shift_left2));
+    pc_src <= Branch AND alu_zero;
+    branch_or_pc1 <= branch_address when pc_src = '1' else pc_plus1;
+    
+    -- Jump address calculation (from instruction[25-0])
+    -- In MIPS, jump address is PC[31:28] + instruction[25:0] << 2
+    -- Since PC increases by 1 here, we use PC+1 for the upper bits
+    jump_address <= pc_plus1(31 downto 28) & instruction(25 downto 0) & "00";
+    
+    -- PC next value multiplexer
+    pc_next <= jump_address when Jump = '1' else branch_or_pc1;
+    
+    -- Debug outputs
+    debug_pc <= pc_current;
+    debug_instruction <= instruction;
+    
+end Behavioral;
