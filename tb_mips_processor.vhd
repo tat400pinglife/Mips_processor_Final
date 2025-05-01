@@ -16,7 +16,18 @@ architecture Behavioral of mips_processor_tb is
             Data_a : out STD_LOGIC_VECTOR(31 downto 0);
             Data_b : out STD_LOGIC_VECTOR(31 downto 0);
             debug_pc : out STD_LOGIC_VECTOR(4 downto 0);
-            debug_instruction : out STD_LOGIC_VECTOR(31 downto 0)
+            debug_instruction : out STD_LOGIC_VECTOR(31 downto 0);
+				debug_RegDst : out STD_LOGIC;
+			   debug_Branch : out STD_LOGIC;
+			   debug_MemRead : out STD_LOGIC;
+			   debug_MemtoReg : out STD_LOGIC;
+			   debug_ALUOp1 : out STD_LOGIC;
+			   debug_ALUOp0 : out STD_LOGIC;             
+			   debug_MemWrite : out STD_LOGIC;
+			   debug_ALUSrc : out STD_LOGIC;
+			   debug_RegWrite : out STD_LOGIC;
+			   debug_Jump : out STD_LOGIC;
+			   debug_ALUControl : out STD_LOGIC
         );
     end component;
     
@@ -33,6 +44,17 @@ architecture Behavioral of mips_processor_tb is
     signal Data_b : STD_LOGIC_VECTOR(31 downto 0);
     signal debug_pc : STD_LOGIC_VECTOR(4 downto 0);
     signal debug_instruction : STD_LOGIC_VECTOR(31 downto 0);
+	 signal debug_RegDst : STD_LOGIC;
+    signal debug_Branch :  STD_LOGIC;
+    signal debug_MemRead :  STD_LOGIC;
+    signal debug_MemtoReg :  STD_LOGIC;
+    signal debug_ALUOp1 : STD_LOGIC;
+    signal debug_ALUOp0 :  STD_LOGIC;             
+    signal debug_MemWrite :  STD_LOGIC;
+    signal debug_ALUSrc :  STD_LOGIC;
+    signal debug_RegWrite :  STD_LOGIC;
+    signal debug_Jump :  STD_LOGIC;
+	 signal debug_ALUControl : STD_LOGIC; 
     
 begin
     -- Instantiate the Unit Under Test (UUT)
@@ -44,7 +66,18 @@ begin
         Data_a => Data_a,
         Data_b => Data_b,
         debug_pc => debug_pc,
-        debug_instruction => debug_instruction
+        debug_instruction => debug_instruction,
+		  debug_RegDst => debug_RegDst,
+		  debug_Branch => debug_branch,
+		  debug_MemRead => debug_MemRead,
+		  debug_MemtoReg => debug_MemToReg,
+		  debug_ALUOp1 => debug_ALUOp1,
+		  debug_ALUOp0 => debug_ALUOp0,
+		  debug_MemWrite => debug_MemWrite,
+		  debug_ALUSrc => debug_ALUSrc,
+		  debug_RegWrite => debug_RegWrite,
+		  debug_Jump => debug_Jump,
+		  debug_ALUControl => debug_ALUControl
     );
 
     -- Clock generation process

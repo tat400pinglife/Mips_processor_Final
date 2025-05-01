@@ -12,7 +12,18 @@ entity mips_processor is
         Data_a : out STD_LOGIC_VECTOR(31 downto 0);
         Data_b : out STD_LOGIC_VECTOR(31 downto 0);
         debug_pc : out STD_LOGIC_VECTOR(4 downto 0);
-        debug_instruction : out STD_LOGIC_VECTOR(31 downto 0)
+        debug_instruction : out STD_LOGIC_VECTOR(31 downto 0);
+		  debug_RegDst : out STD_LOGIC;
+        debug_Branch : out STD_LOGIC;
+        debug_MemRead : out STD_LOGIC;
+        debug_MemtoReg : out STD_LOGIC;
+        debug_ALUOp1 : out STD_LOGIC;
+        debug_ALUOp0 : out STD_LOGIC;             
+        debug_MemWrite : out STD_LOGIC;
+        debug_ALUSrc : out STD_LOGIC;
+        debug_RegWrite : out STD_LOGIC;
+        debug_Jump : out STD_LOGIC;
+		  debug_ALUControl : out STD_LOGIC
     );
 end mips_processor;
 
@@ -264,5 +275,16 @@ begin
     overflow <= overflow_sig;
     debug_pc <= pc_current;
     debug_instruction <= instruction;
+	 debug_RegDst <= RegDst;
+	 debug_Branch <= Branch;
+	 debug_MemRead <= MemRead;
+	 debug_MemtoReg <= MemtoReg;
+	 debug_ALUOp1 <= ALUOp1;
+	 debug_ALUOp0 <= ALUOp0;
+	 debug_MemWrite <= MemWrite;
+	 debug_ALUSrc <= ALUSrc;
+	 debug_RegWrite <= RegWrite;
+	 debug_Jump <= Jump;
+	 debug_ALUControl <= alu_control_signal;
     
 end Behavioral;
