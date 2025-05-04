@@ -33,6 +33,8 @@ architecture Behavioral of mips_processor is
         Port ( 
             clk : in STD_LOGIC;
             reset : in STD_LOGIC;
+				jump : in STD_LOGIC;
+				jump_addr : in STD_LOGIC_VECTOR(4 downto 0);
             pc_in : in STD_LOGIC_VECTOR(4 downto 0);
             pc_out : out STD_LOGIC_VECTOR(4 downto 0)
         );
@@ -168,6 +170,8 @@ begin
     port map (
         clk => clk,
         reset => reset,
+		  jump => jump,
+		  jump_addr => jump_address,
         pc_in => pc_next,
         pc_out => pc_current
     );
@@ -266,7 +270,7 @@ begin
     jump_address <= instruction(4 downto 0);  
     
     -- PC next value multiplexer
-    pc_next <= jump_address when Jump = '1' else branch_or_pc1;
+    pc_next <= branch_or_pc1;
     
     -- Debug outputs
     Data_a <= reg_read_data1;
