@@ -182,7 +182,7 @@ begin
     -- Instruction Memory
     inst_mem: instruction_memory
     port map (
-        address => pc_current,
+        address => pc_next,
         clock => clk,
         q => instruction
     );
@@ -202,6 +202,7 @@ begin
         RegWrite => RegWrite,
         Jump => Jump
     );
+	 
      
     -- combine code
     ALUOp <= ALUOp1 & ALUOp0;
@@ -270,7 +271,7 @@ begin
     jump_address <= instruction(4 downto 0);  
     
     -- PC next value multiplexer
-    pc_next <= branch_or_pc1;
+    pc_next <= jump_address when jump = '1' else branch_or_pc1;
     
     -- Debug outputs
     Data_a <= reg_read_data1;

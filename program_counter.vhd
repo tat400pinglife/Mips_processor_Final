@@ -15,13 +15,13 @@ end program_counter;
 
 architecture Behavioral of program_counter is
     signal pc_reg : STD_LOGIC_VECTOR(4 downto 0) := (others => '0');
-begin
+	 begin
     process(clk, reset, jump, jump_addr)
     begin
-		  if reset = '1' then
-			pc_reg <= "00000";
-			elsif rising_edge(jump) then 
-			pc_reg <= jump_addr;
+          if reset = '1' then
+            pc_reg <= "00000";
+            elsif jump = '1' then 
+            pc_reg <= jump_addr;
         elsif rising_edge(clk) then
             pc_reg <= pc_in;
         end if;

@@ -1,0 +1,26 @@
+Quartus Prime Archive log --	C:/intelFPGA_lite/18.1/Mips_processor_Final/mips_processor.qarlog
+
+Archive:	C:/intelFPGA_lite/18.1/Mips_processor_Final/mips_processor.qar
+Date:		Mon May 05 17:01:09 2025
+Quartus Prime		18.1.0 Build 625 09/12/2018 SJ Lite Edition
+
+	=========== Files Selected: ===========
+C:/intelFPGA_lite/18.1/Mips_processor_Final/Zhang_register_files.vhd
+C:/intelFPGA_lite/18.1/Mips_processor_Final/addsub.vhd
+C:/intelFPGA_lite/18.1/Mips_processor_Final/alu_control.vhd
+C:/intelFPGA_lite/18.1/Mips_processor_Final/control_unit.vhd
+C:/intelFPGA_lite/18.1/Mips_processor_Final/data_memory.vhd
+C:/intelFPGA_lite/18.1/Mips_processor_Final/data_memory_forwarder.vhd
+C:/intelFPGA_lite/18.1/Mips_processor_Final/instruction_memory.mif
+C:/intelFPGA_lite/18.1/Mips_processor_Final/instruction_memory.vhd
+C:/intelFPGA_lite/18.1/Mips_processor_Final/mips_processor.qpf
+C:/intelFPGA_lite/18.1/Mips_processor_Final/mips_processor.qsf
+C:/intelFPGA_lite/18.1/Mips_processor_Final/mips_processor.vhd
+C:/intelFPGA_lite/18.1/Mips_processor_Final/program_counter.vhd
+C:/intelFPGA_lite/18.1/Mips_processor_Final/sign_extend.vhd
+C:/intelFPGA_lite/18.1/Mips_processor_Final/tb_mips_processor.vhd
+c:/intelfpga_lite/18.1/quartus/bin64/assignment_defaults.qdf
+	======= Total: 15 files to archive =======
+
+	================ Status: ===============
+All files archived successfully.
