@@ -6,6 +6,7 @@ entity program_counter is
     Port ( 
         clk : in STD_LOGIC;
         reset : in STD_LOGIC;
+		  pc_prior: in STD_LOGIC_VECTOR(4 downto 0);
 		  jump : in STD_LOGIC;
 		  jump_addr : in STD_LOGIC_VECTOR(4 downto 0);
         pc_in : in STD_LOGIC_VECTOR(4 downto 0);
@@ -20,9 +21,9 @@ architecture Behavioral of program_counter is
     begin
           if reset = '1' then
             pc_reg <= "00000";
-            elsif jump = '1' then 
+            elsif jump = '1' and jump_addr /= pc_prior then -- THE JUMP WAS GOING TWICE
             pc_reg <= jump_addr;
-        elsif rising_edge(clk) then
+				elsif rising_edge(clk) then
             pc_reg <= pc_in;
         end if;
     end process;

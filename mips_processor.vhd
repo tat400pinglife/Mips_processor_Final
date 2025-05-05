@@ -33,6 +33,7 @@ architecture Behavioral of mips_processor is
         Port ( 
             clk : in STD_LOGIC;
             reset : in STD_LOGIC;
+				pc_prior : in STD_LOGIC_VECTOR(4 downto 0);
 				jump : in STD_LOGIC;
 				jump_addr : in STD_LOGIC_VECTOR(4 downto 0);
             pc_in : in STD_LOGIC_VECTOR(4 downto 0);
@@ -132,6 +133,7 @@ architecture Behavioral of mips_processor is
     signal pc_current  : STD_LOGIC_VECTOR(4 downto 0);
     signal pc_next     : STD_LOGIC_VECTOR(4 downto 0);
     signal pc_plus1    : STD_LOGIC_VECTOR(4 downto 0);
+
     
     -- Instruction Memory signals
     signal instruction : STD_LOGIC_VECTOR(31 downto 0);
@@ -157,6 +159,7 @@ architecture Behavioral of mips_processor is
     
     -- Jump address calculation
     signal jump_address   : STD_LOGIC_VECTOR(4 downto 0);
+
     
     -- Branch address calculation
     signal branch_address : STD_LOGIC_VECTOR(4 downto 0);
@@ -170,6 +173,7 @@ begin
     port map (
         clk => clk,
         reset => reset,
+		  pc_prior => pc_current,
 		  jump => jump,
 		  jump_addr => jump_address,
         pc_in => pc_next,
@@ -179,10 +183,11 @@ begin
     -- PC + 1 calculation  PC increases by 1
     pc_plus1 <= std_logic_vector(unsigned(pc_current) + 1);
 	 
+	 
     -- Instruction Memory
     inst_mem: instruction_memory
     port map (
-        address => pc_next,
+        address => pc_current,
         clock => clk,
         q => instruction
     );
@@ -271,7 +276,7 @@ begin
     jump_address <= instruction(4 downto 0);  
     
     -- PC next value multiplexer
-    pc_next <= jump_address when jump = '1' else branch_or_pc1;
+    pc_next <= branch_or_pc1;  -- maybe move this inside of pc module
     
     -- Debug outputs
     Data_a <= reg_read_data1;

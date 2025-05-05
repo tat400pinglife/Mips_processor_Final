@@ -11,7 +11,7 @@ entity alu_control is
 end alu_control;
 
 architecture behavioral of alu_control is
--- FOR ADD vs SUB
+
 begin
 	process (ALUOp, funct)
 	begin
